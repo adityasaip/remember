@@ -28,7 +28,6 @@ export const topicsReducer = (state, action) => {
                 { ...topic, 
                 subTopics: topic.subTopics.map((subTopic) => subTopic._id === action.payload.subId ? 
                 {...subTopic, subTopicName: action.payload.subTopicName} : subTopic)} : topic)
-            console.log(updatedTopics)
             return {
                 ...state,
                 topics: updatedTopics
@@ -41,6 +40,12 @@ export const topicsReducer = (state, action) => {
                 ...state,
                 topics: filteredTopics
             }
+        case 'ADD_SUB':
+            const newTopics = state.topics.map((topic) => topic._id === action.payload.id ? {...topic, subTopics: [...topic.subTopics, {subTopicName: action.payload.subTopicName, revisionCount: 0}]} : topic)
+            return {
+                ...state,
+                topics: newTopics
+                }
         default:
             return state
     }

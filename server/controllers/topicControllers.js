@@ -133,7 +133,7 @@ const deleteSubTopic = async (req, res) => {
         // }
         // if using updateOne, it updates only one, so why check !== 1, we can also do ===0
         const topic = await Topics.findById({_id: id, "subTopics._id": subId})
-        const subs = topics.subTopics
+        const subs = topic.subTopics
         if (subs.length < 2) {
             return res.status(400).json({error: "Atleast 1 sub workout must be present"})
         }

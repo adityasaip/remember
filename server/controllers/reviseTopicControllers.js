@@ -9,8 +9,9 @@ const {differenceInCalendarDays} = require('date-fns')
 
 // GET all revise topics
 const getAllReviseTopics = async (req, res) => {
+    const user_id = req.user._id
     try {
-        const topics = await Topics.find()    // yet to handle edge case topics = [] or null
+        const topics = await Topics.find({user_id})    // yet to handle edge case topics = [] or null
         const reviseTopics = []
         const helper = (topics) => { 
             for (let topic of topics){
