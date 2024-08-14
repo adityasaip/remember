@@ -9,11 +9,13 @@ import Modal from 'react-modal'
 
 Modal.setAppElement('#root')    // need to attach the modal to top element, to come above it
 
-const SubTopicOptions = ({id, subId, name}) => {
+const SubTopicOptions = ({id, subId, name, desc}) => {
     const [isOpen, setIsOpen] = useState(false);
     const [showEdit, setShowEdit] = useState(false)
     const [showConfirm, setShowConfirm] = useState(false)
     const [subTopicName, setSubTopicName] = useState(name)
+    const [showDesc, setShowDesc] = useState(false)
+    const [description, setDescription] = useState(desc)
     const {user} = useAuthContext()
     const {dispatch} = useTopicsContext()
 
@@ -41,12 +43,45 @@ const SubTopicOptions = ({id, subId, name}) => {
             }
         })
         if (response.status === 200) {
-            dispatch({type: 'EDIT_SUB_NAME', payload: {id, subId, subTopicName}})
+            dispatch({type: 'EDIT_SUB_DATA', payload: {id, subId, subTopicName}})
             // alert(`Updated ${name} to ${subTopicName} successfully`)
         }
         setShowEdit(false)
         setIsOpen(false)
     }
+
+
+    const handleEditDescClick = () => {
+        setShowDesc(true)
+        setIsOpen(false)
+    }
+    const handleEditDescCancel = () => {
+        setShowDesc(false)
+        setIsOpen(false)
+        setDescription(desc)
+    }
+    const handleEditDescSubmit = async () => {
+        if (!user) {
+            alert(`Please login first`)
+            return
+        }
+        const response = await axios({
+            method: 'patch',
+            url: `/api/topics/${id}/${subId}`,
+            data: {description},
+            headers: {
+                'Authorization': `Bearer ${user.token}`,
+                'Content-Type': 'application/json'
+            }
+        })
+        if (response.status === 200) {
+            dispatch({type: 'EDIT_SUB_DATA', payload: {id, subId, description}})
+            // alert(`Updated ${name} to ${subTopicName} successfully`)
+        }
+        setIsOpen(false)
+        setShowDesc(false)
+    }
+
     const handleDeleteClick = () => {
         setIsOpen(false)
         setShowConfirm(true)
@@ -83,7 +118,20 @@ const SubTopicOptions = ({id, subId, name}) => {
             right: 'auto',
             bottom: 'auto',
             transform: 'translate(-50%, -50%)',
-            // maxWidth: '600px',
+            borderRadius: '7px',
+          },
+          overlay: {
+            backgroundColor: "rgba(0,0,0,0.5)"
+        }
+    };
+    const customStyles_2 = {
+        content: {
+            top: '50%',
+            left: '50%',
+            right: 'auto',
+            bottom: 'auto',
+            width: '80vw',
+            transform: 'translate(-50%, -50%)',
             borderRadius: '7px',
           },
           overlay: {
@@ -96,6 +144,7 @@ const SubTopicOptions = ({id, subId, name}) => {
             {isOpen &&
                 <div className='bg-slate-100 absolute rounded align-middle pl-2 pr-2 pt-1 pb-1 flex flex-col z-10'> 
                     <p className='border-b-2 cursor-pointer hover:bg-gray-200' onClick={handleEditClick}>Edit name</p>
+                    <p className='border-b-2 cursor-pointer hover:bg-gray-200' onClick={handleEditDescClick}>Edit Description</p>
                     <p className='cursor-pointer hover:bg-gray-200' onClick={handleDeleteClick}>Delete</p>
                 </div> 
             }
@@ -120,6 +169,24 @@ const SubTopicOptions = ({id, subId, name}) => {
                 </div>
             </Modal>
             
+            <Modal
+                isOpen={showDesc}
+                onRequestClose={()=>setShowDesc(false)}
+                style = {customStyles_2}
+                contentLabel="Edit SubTopic desc Modal"
+            >
+                <div className="flex flex-col gap-2">
+                    <textarea className="w-full pl-1 h-20 border-gray-400 border-2 rounded-md text-wrap" type='text' value = {description} onChange={(e)=>setDescription(e.target.value)} />
+                        <div className="flex gap-2 justify-end">
+                            <button className="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded" onClick={handleEditDescSubmit}>
+                            <OkayIcon/>
+                        </button>
+                        <button className=" bg-gray-200 hover:bg-gray-400 font-bold py-2 px-4 rounded" onClick={handleEditDescCancel}>
+                            <CloseIcon/>
+                        </button>
+                    </div>
+                </div>
+            </Modal>
 
             <Modal
                 isOpen={showConfirm}

@@ -23,11 +23,18 @@ export const topicsReducer = (state, action) => {
             return {
                 topics: state.topics.filter((topic) => topic._id !== action.payload.id)
             }
-        case 'EDIT_SUB_NAME':
+        case 'EDIT_SUB_DATA':
+            const updateFields = {}
+            if ('subTopicName' in action.payload){
+                updateFields.subTopicName = action.payload.subTopicName
+            }
+            if ('description' in action.payload){
+                updateFields.description = action.payload.description
+            }
             const updatedTopics = state.topics.map((topic) => topic._id === action.payload.id ? 
                 { ...topic, 
                 subTopics: topic.subTopics.map((subTopic) => subTopic._id === action.payload.subId ? 
-                {...subTopic, subTopicName: action.payload.subTopicName} : subTopic)} : topic)
+                {...subTopic, ...updateFields} : subTopic)} : topic)
             return {
                 ...state,
                 topics: updatedTopics
@@ -41,7 +48,7 @@ export const topicsReducer = (state, action) => {
                 topics: filteredTopics
             }
         case 'ADD_SUB':
-            const newTopics = state.topics.map((topic) => topic._id === action.payload.id ? {...topic, subTopics: [...topic.subTopics, {subTopicName: action.payload.subTopicName, revisionCount: 0}]} : topic)
+            const newTopics = state.topics.map((topic) => topic._id === action.payload.id ? {...topic, subTopics: [...topic.subTopics, {...action.payload.subTopic, revisionCount: 0}]} : topic)
             return {
                 ...state,
                 topics: newTopics

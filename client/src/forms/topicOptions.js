@@ -17,6 +17,7 @@ const TopicOptions = ({id, name}) => {
     const [showConfirm, setShowConfirm] = useState(false)
     const [showSubTopic, setShowSubTopic] = useState(false)
     const [subTopicName, setSubTopicName] = useState('')
+    const [description, setDescription] = useState('')
     const {user} = useAuthContext()
     const {dispatch} = useTopicsContext()
 
@@ -105,8 +106,9 @@ const TopicOptions = ({id, name}) => {
         })
         if (response.status === 200){
             alert(`Added ${subTopicName} successfully`)
-            dispatch({type:'ADD_SUB', payload:{id, subTopicName}})
+            dispatch({type:'ADD_SUB', payload:{id, subTopic:{subTopicName, description}}})
             setSubTopicName('')
+            setDescription('')
         } else {
             alert(`Oops! Error. Cannot add ${subTopicName}`)
         }
@@ -186,7 +188,9 @@ const TopicOptions = ({id, name}) => {
             >
                 <div className="flex flex-col gap-2">
                     <h3 className="font-semibold">Add subtopic</h3>
-                    <textarea className="w-42 pl-1 h-20 border-gray-400 border-2 rounded-md text-wrap sm:w-52" align="top" type='text' value = {subTopicName} placeholder="Subtopic name" onChange={(e)=>setSubTopicName(e.target.value)} />
+                    <textarea className="w-42 pl-1 h-14 border-gray-400 border-2 rounded-md sm:w-52" type='text' value = {subTopicName} placeholder="Subtopic name" onChange={(e)=>setSubTopicName(e.target.value)} />
+                    <textarea className="w-42 pl-1 h-32 border-gray-400 border-2 rounded-md sm:w-64" type='text' value = {description} placeholder="Description" onChange={(e)=>setDescription(e.target.value)} />
+                
                     <div className="flex gap-2 justify-end">
                         <button className="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded" onClick={handleSubTopicSubmit}>
                             <OkayIcon/>

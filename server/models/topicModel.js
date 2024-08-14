@@ -8,6 +8,9 @@ const subSchema = new Schema({
         type: String,
         required: true
     },
+    description: {
+        type: String,
+    },
     lastLearntDate: {
         type: Date,
         default: Date.now

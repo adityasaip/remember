@@ -153,7 +153,14 @@ const deleteSubTopic = async (req, res) => {
 // UPDATE a subtopic
 const updateSubTopic = async (req, res) => {
     const {id, subId} = req.params
-    const {subTopicName} = req.body
+    const updateFields = {}
+    if (req.body.subTopicName){
+        updateFields["subTopics.$.subTopicName"] = req.body.subTopicName    //pre-writing with positional indicator $
+    }
+    if (req.body.description){
+        updateFields["subTopics.$.description"] = req.body.description
+    }
+    console.log(updateFields)
     if (!mongoose.Types.ObjectId.isValid(id)){
         return res.status(400).json({error: "Id is not valid"})
     }
@@ -162,16 +169,16 @@ const updateSubTopic = async (req, res) => {
     }
     try {        
         // we should use subTopics.$.subTopicName, where $ indicates we are assinging to the position of subTopicName without disturbing other fields, irrespective of number of fields.
-        const response = await Topics.updateOne({_id: id, "subTopics._id": subId}, {$set: {"subTopics.$.subTopicName":subTopicName}})
-        console.log(response)
+        const response = await Topics.updateOne({_id: id, "subTopics._id": subId}, {$set: updateFields})    // mongo updates the first matched object with id and subId, as subId is an array, we use positional indicator to tell mongo to update the first matched one
+        // $ only works for array of objects, if we have object of objects, we will have object keys for each of inner objects right, we have to use them instead of positional index
+        // const updatedItem = await Item.findByIdAndUpdate(id, updateFields, { new: true });
         if (response.modifiedCount === 0) {
-            return res.status(400).json({error: "Cannot update"})
+            return res.status(404).send('Error updating item');
         }
-        if (response.modifiedCount === 1) {
-            res.status(200).json({mssg:"Successfully updated"})
-        }
+        return res.status(200).send({mssg: "Updated"})
+        
     } catch (error) {
-        res.status(400).json({error: "Cannot update"})
+        res.status(400).json({error: "Error updating item"})
     }
 }
 
